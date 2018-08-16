@@ -1,0 +1,21 @@
+ctl-opt OPTION(*NODEBUGIO : *SRCSTMT) DFTACTGRP(*NO);
+ctl-opt datedit(*YMD);
+
+dcl-s url char(500);  //URL du service
+dcl-s urlRetour VARCHAR(9000); // retour du service
+ 
+// début du programme
+url = 'http://votre_url?&parametre1=#param1';
+ 
+// On remplace le paramètre 1 
+url = %scanrpl('#param1':'votre_valeur':url);
+ 
+//consommation du service
+EXEC SQL Values SYSTOOLS.HTTPGETCLOB (:url , '' ) into :urlRetour;
+
+// si on a une erreur
+If sqlstt <> '00000';
+   // traitement de l'erreur
+Endif;
+
+*inlr = *on; 
