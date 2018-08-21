@@ -1,0 +1,42 @@
+ctl-opt decedit('0.') option(*nodebugio) datedit(*ymd.) dftactgrp(*no)
+CCSID(*UCS2:1200);
+
+// variables
+dcl-s requete varchar(500);
+dcl-s header varchar(500);
+dcl-s URL varchar(500);
+
+dcl-pi *n;
+  //paramètre 1;
+  param1 ucs2(30);
+End-pi;
+
+// votre URL de destination
+URL = 'https://adresse_du_service/dossier';
+
+// requete à envoyer
+requete = '<?xml version="1.0" encoding="UTF-8"?>' +
+          '<request xml:lang="EN">' +
+          '<import>'+
+              '<fields>'+
+              '<Company>'+ param1 +  '</Company>'+
+              '</fields>'+
+            '</import>'+
+          '</request>';
+          
+// traitement de l'entête
+header = '<httpHeader><header name="Content-Type" '  +
+         'value="text/xml;charset=utf-8" /></httpHeader>';
+         
+// consommation du service
+Exec Sql
+  Set :urlRetourclob = SYSTOOLS.HTTPPOSTCLOB(:URL,
+      :header, cast(:requete as dbclob(1M)));
+      
+if sqlstt <> '00000';
+   // traitement de l'erreur
+else;
+   // traitement du retour
+endif;
+
+*inlr = *on;
