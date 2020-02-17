@@ -5,9 +5,10 @@ HTTPPOSTCLOB : consommation d'un service SOAP à l'aide de HTTPPOSTCLOB
 
 JWTCHK: vérifie un token JWT (voir https://jwt.io/) 
   A/ découpage du header et du payload
-  B/ vérification date de validité (émise en temps Unix)
-  C/ signature basée sur un certificat (il faut SI70948/7.2,SI70949/7.3,SI70950/7.4)   
-  D/ on peut récupérer de la data,  ici $.sub = l'Identifiant (user)
+  B/ passage de base64URL en clair
+  C/ vérification date de validité (émise en temps Unix)
+  D/ signature basée sur un certificat (il faut SI70948/7.2,SI70949/7.3,SI70950/7.4)   
+  E/ on peut récupérer de la data,  ici $.sub = l'Identifiant (user)
   
 Mise en place
 ADDLIBLE MYBLIB
