@@ -1,0 +1,44 @@
+**free
+// Check JWT token (header)
+// ------------------------
+
+
+// Constants
+dcl-c JWT_DFT_PUBLIC_KEY  const('/mydir/mycertificate.cer');
+dcl-c JWT_MAX_SIZE        const(8192) ;
+
+// Managed error codes :
+dcl-c E_JWT_OK                  const(0) ;
+dcl-c E_JWT_ERROR               const(1) ;
+dcl-c E_JWT_SIGNATURE           const(2) ;
+dcl-c E_JWT_NO_DATA             const(3) ;
+dcl-c E_JWT_EXPIRED             const(4) ;
+
+
+// JWT datas returned
+dcl-ds JWT_data_t qualified template ;
+  login varchar(64) inz ;
+end-ds;
+dcl-pr verifySignature ind;
+  datatoCheck varchar(5121) const ;
+  Key         varchar(4096) const ;
+  signature   char(4096) const;
+end-pr;
+
+
+// function for jwt check
+// - return              : *on : OK. *off : error
+// - tocken              : jwt token
+// - publicKey           : path to the public key file in the IFS
+// - jwt_data (optional) : datas extracted from the jwt token
+// - errorC (optional)   : error code   (if return = *off)
+// - errorS (optional)   : error string (if return = *off)
+// =================================================================================================
+dcl-pr checkJWTToken ind ;
+  token     varchar(JWT_MAX_SIZE) const ;
+  publicKey varchar(256)          value ;
+  jwt_data  likeds( JWT_data_t )  options( *nopass : *omit ) ;
+  errorC    uns(3)                options( *nopass : *omit ) ;
+  errorS    varchar(8192)         options( *nopass ) ;
+end-pr;
+ 
