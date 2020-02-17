@@ -1,0 +1,338 @@
+**free
+
+// Otions
+// =================================================================================================
+ctl-opt nomain option(*SRCSTMT);
+
+// prototypes
+// =================================================================================================
+/copy QJWTSRC,JWTCHK_H
+/copy QJWTSRC,base64UR_H
+
+// vérifie validité d'un jeton JWT
+// -------------------------------
+// - return              : *on : OK/ *off : error
+// - tocken              : jwt token
+// - publicKey           : chemin vers le certificat (IFS)
+// - jwt_data (optionel) : data à extraire du token
+// - errorC (optionel)   : error code   (si return = *off)
+// - errorS (optionel)   : error string (si return = *off)
+// =================================================================================================
+dcl-proc checkJWTToken export ;
+ dcl-pi *n ind ;
+  token     varchar(JWT_MAX_SIZE) const ;
+  publicKey varchar(256)          value ;
+  jwt_data  likeds( JWT_data_t )  options( *nopass : *omit ) ;
+  errorC    uns(3)                options( *nopass : *omit ) ;
+  errorS    varchar(8192)         options( *nopass ) ;
+ end-pi ;
+
+// variables
+// -----------------------------------------------------------------------------------------------
+
+// paramètres optionnels
+dcl-s  l_is_jwt_data ind                  inz ;
+dcl-ds l_jwt_data    likeds( JWT_data_t ) inz ;
+dcl-s  l_is_errorC   ind                  inz ;
+dcl-s  l_errorC      uns(3)               inz( E_JWT_OK ) ;
+dcl-s  l_is_errorS   ind                  inz ;
+dcl-s  l_errorS      varchar(8192)        inz ccsid(1208) ;
+
+// parties du token
+dcl-s l_signature_b64    varchar( 1024 )  inz ;
+dcl-s l_signature_bin    char( 4096 )     inz ccsid(65535) ;
+dcl-s l_signature_length uns(10)          inz ;
+dcl-s l_header_b64       varchar( 1024 )  inz ;
+dcl-s l_payload_b64      varchar( 4096 )  inz ;
+dcl-s l_payload_json     char( 4096 )     inz ccsid(1208) ;
+dcl-s l_payload_length   int(10)          inz ;
+
+// valeurs extraites du token (expiration)
+dcl-s l_exp              int(10)          inz ;
+
+// log format
+dcl-s l_log_status       varchar(20)      inz ccsid(1208) ;
+
+// blob pour certificat
+dcl-s key_blob sqltype(blob : 4096);
+dcl-s keyvarchar varchar(4096);
+
+
+// paramètres recus ?
+// -----------------------------------------------------------------------------------------------
+l_is_jwt_data = ( %parms() >= %parmnum( jwt_data ) and
+                  %addr( jwt_data ) <> *null) ;
+l_is_errorC = ( %parms() >= %parmnum( errorC ) and
+                %addr( errorC ) <> *null) ;
+l_is_errorS = ( %parms() >= %parmnum( errorS ) ) ;
+
+
+// vérification des paramètres
+// -----------------------------------------------------------------------------------------------
+if %len( token ) = 0 ;
+   l_errorC = E_JWT_NO_DATA ;
+endif ;
+if publicKey = *blanks ;
+   publicKey = JWT_DFT_PUBLIC_KEY ;
+endif ;
+
+// éclatement (split) du token
+// -----------------------------------------------------------------------------------------------
+
+if l_errorC = E_JWT_OK ;
+  if not split( token : l_header_b64 : l_payload_b64 : l_signature_b64 ) ;
+    l_errorC = E_JWT_ERROR ;
+  endif ;
+endif ;
+
+
+// signature
+//==========
+// chargement du certificat
+exec sql
+ values get_blob_from_file(:publickey) into :key_blob;
+if %subst(sqlstate : 1 : 2) > '01';
+  l_errorC = E_JWT_SIGNATURE;
+else;
+  keyvarchar = %subst(key_blob_data : 1 : key_blob_len);
+EndIf;
+
+
+// signature décodée de base64URL en ASCII
+// ---------------------------------------------------------------------------------------------
+if l_errorC = E_JWT_OK ;
+  l_signature_length = base64_URLdecode( %addr( l_signature_b64 : *data ) :
+                                         %len( l_signature_b64 ) :
+                                         %addr( l_signature_bin ) :
+                                         %size( l_signature_bin ) ) ;
+  if l_signature_length = 0 ;
+    l_errorC = E_JWT_ERROR ;
+  endif;
+endif;
+// vérification de la signature avec clé RSA (keyvarchar)
+// -------------------------------------------------------------------------------------------
+if l_errorC = E_JWT_OK ;
+  if not verifySignature(l_header_b64 + '.' + l_payload_b64:keyvarchar:l_signature_bin);
+                         l_errorC = E_JWT_SIGNATURE ;
+  EndIf;
+endif;
+
+// vérification des valeurs
+// -------------------------------------------------------------------------------------------
+if l_errorC = E_JWT_OK ;
+// décodé payload depuis base64url
+  l_payload_length = base64_URLdecode( %addr( l_payload_b64 : *data ) :
+                                       %len( l_payload_b64 ) :
+                                       %addr( l_payload_json ) :
+                                       %size( l_payload_json ) );
+  if l_payload_length = 0 ;
+    l_errorC = E_JWT_ERROR ;
+  endif ;
+  if l_errorC = E_JWT_OK ;
+    // récupération de "exp" du payload
+    l_exp = 0 ;
+    exec sql set :l_exp = json_value( substr( :l_payload_json , 1,
+                                     :l_payload_length )
+             format json,
+             '$.exp' returning integer
+             default 0 on error ) ;
+    // trouvé ?
+    if sqlCode < 0 or l_exp = 0 ;
+      l_errorC = E_JWT_ERROR ;
+     else ;
+     // encore valide ?
+     if linuxTime( l_exp ) < %timestamp() ;
+         l_errorC = E_JWT_EXPIRED ;
+     endif ;
+    endif ;
+  endif ;
+endif ;
+
+// Autres données à extraire ("sub" contient l'identifiant)
+// -------------------------------------------------------------------------------------------
+if l_errorC = E_JWT_OK ;
+   exec sql set :l_jwt_data.login =
+                json_value( substr( :l_payload_json , 1,
+                           :l_payload_length )
+            format json,
+            '$.sub' returning varchar(64)
+            default '' on error ) ;
+endif ;
+
+
+// Formatage code erreur
+// -------------------------------------------------------------------------------------------
+if l_errorC <> E_JWT_OK and l_is_errorS ;
+  select ;
+    when l_errorC = E_JWT_ERROR ;
+      l_log_status = 'ERROR' ;
+    when l_errorC = E_JWT_SIGNATURE ;
+      l_log_status = 'SIGNATURE' ;
+    when l_errorC = E_JWT_NO_DATA ;
+      l_log_status = 'NO_DATA' ;
+    when l_errorC = E_JWT_EXPIRED ;
+      l_log_status = 'EXPIRED' ;
+    other ;
+      l_log_status = 'UNKNOWN' ;
+  endsl ;
+
+  exec sql set :l_errorS = 'ERR -- errors: ' concat
+                json_object( key 'jwt_status' value :l_log_status,
+                key 'jwt_value' value
+                 cast( :token as varchar(8192) ccsid 500 ) ) ;
+endif ;
+
+// fin, retour des valeurs
+// -------------------------------------------------------------------------------------------
+if l_is_jwt_data ;
+  jwt_data = l_jwt_data ;
+endif ;
+if l_is_errorC ;
+  errorC = l_errorC ;
+endif ;
+if l_is_errorS ;
+  errorS = l_errorS ;
+endif ;
+return ( l_errorC = E_JWT_OK ) ;
+end-proc ;
+// =================================================================================================
+// procedures internes
+// =================================================================================================
+
+
+// split du token dans header, payload et signature
+// -------------------------------------------------
+// - tocken              : jwt token
+// - header              : header
+// - payload             : payload
+// - signature           : signature
+// =================================================================================================
+dcl-proc split ;
+  dcl-pi *n ind ;
+    token      varchar(JWT_MAX_SIZE) const ;
+    header     varchar(1024) ;
+    payload    varchar(4096) ;
+    signature  varchar(1024) ;
+  end-pi ;
+
+  dcl-s pos1 uns(5) inz ;
+  dcl-s pos2 uns(5) inz ;
+
+  pos1 = %scan( '.' : token ) ;
+  if pos1 = 0 ;
+     return *off ;
+  endif ;
+  pos2 = %scan( '.' : token : pos1 + 1 ) ;
+  if pos2 = 0 ;
+    return *off ;
+  endif ;
+
+  header     = %subst( token : 1 : pos1 - 1 ) ;
+  payload    = %subst( token : pos1 + 1  : pos2 - pos1 - 1 ) ;
+  signature  = %subst( token : pos2 + 1 ) ;
+  return *on ;
+end-proc ;
+
+// convertir "Linux time" en timestamp RPG
+// -----------------------------------------
+// - return : timestamp RPG
+// - linuxTime : nb de secondes depuis EPOCH
+// @TODO : timezone management??
+// QTIMZON     *DATTIM  Fuseau horaire
+// QUTCOFFSET  *DATTIM  Décalage heure GMT
+// =================================================================================================
+
+dcl-proc linuxTime ;
+  dcl-pi *n timestamp ;
+    linuxTime uns(10) const ;
+  end-pi ;
+
+  dcl-s EPOCH timestamp inz(z'1970-01-01-00.00.00.000000') static ;
+
+  return EPOCH + %seconds( linuxTime ) ;
+end-proc ;
+
+dcl-proc verifySignature;
+  dcl-pi *n ind;
+    DatatoCheck  varchar(5121) CONST; // data d'origine
+    Key          varchar(4096) CONST; // contenu certificat au format DER (PEM)
+    signature    char(4096) CONST;    // empreinte à vérifier
+  End-Pi;
+
+
+  dcl-ds ErrorCode  qualified;
+    bytesProv  INt(10) inz(0); // ou 64 pour voir MSGID
+    bytesAvail INt(10) inz(0);
+    MSGID CHAR(7);
+    filler char(1);
+    data  char(48);
+  end-ds;
+  dcl-ds AlgoDS qualified;
+    cipher   INT(10) inz(50) ; //RSA
+    PKA      CHAR(1) inz('1'); //PKCS bloc 0 ou 1, 3=ISO 9796-1
+    filler   CHAR(3) inz(x'000000');
+    // le token doit indiquer RS256(RSA) et non HS256 (HMAC = symétrique)
+    hash     int(10) inz(3); // 3=SHA256 5=SHA512
+  End-Ds;
+  // clé PEM : https://www-01.ibm.com/support/docview.wss?uid=ibm10728315
+  // la clé doit être en ASCII et chaque ligne doit se terminer par LF uniquement
+  dcl-ds pemDS qualified;
+    keylen INT(10);
+    filler char(4) INZ(x'00000000');
+    key char(4096) CCSID(65535);
+  End-Ds;
+  dcl-s signatureLen int(10); // normalement 512
+  dcl-s DataLen int(10);
+  dcl-pr QDCXLATE EXTPGM;
+    datalen packed(5:0) CONST;
+    data char(4096);
+    table char(10) CONST;
+  End-Pr;
+  dcl-s dataChar char(4096);
+  dcl-pr verifyHASH ExtProc('Qc3VerifySignature');
+    signature    CHAR(4096)  const; // empreinte
+    signatureLen INT(10)     const;
+    Data         CHAR(5121)  const; // data d'origine
+    Datalen      INT(10)     const;
+    Dataformat   CHAR(8)     const; //DATA0100 = données directement
+    Algo         likeds(algoDS);    // algo de cryptage -> RSA
+    AlgoFormat   CHAR(8)     const; //ALGD0400 = paramètres de clé
+    Key          likeds(pemDS);     // contenu du certificat PEM
+    KeyFormat    CHAR(8)    const;  //KEYD0600 = utiliser la clé du certificat PEM
+    CSP          CHAr(1)    const;  // 1=Soft,2=hard(renseigner DEVICE),0=Any
+    CSPDEVICE    CHAr(10)   const;  // blanc si pas de co-processeur
+    ErrorCode    CHar(16) ;
+  end-pr;
+
+  //---------------------------------------------------------
+  //            Verify the SHA512/256  hash
+  //---------------------------------------------------------
+
+  pemDS.key = key;
+  pemDS.keylen = %len(key);
+
+  signatureLen = %len(%trimr(signature));
+  dataLen =   %len(%trimr(datatocheck)) ;
+  datachar = DatatoCheck;// cast varchar -> char
+  // le payload doit être en ASCII, la signature étant en ASCII
+  // on peut utiliser QDCXLATE, c'est de la base 64 = pas car. accentués
+  QDCXLATE(datalen:datachar:'QASCII');
+  // API IBM de crypto.
+  monitor;
+    verifyHASH( signature
+                : signatureLen
+                : datachar
+                : dataLen
+                : 'DATA0100'
+                :  algoDS
+                : 'ALGD0400'
+                : pemds
+                : 'KEYD0600'
+                : '0'
+                : '          '
+                : ErrorCode );
+  on-error;
+    return *off;
+  endmon;
+  return *on;
+End-Proc; 
