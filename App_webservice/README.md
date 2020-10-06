@@ -35,6 +35,10 @@ To start a production version of your app, run `npm run build`. This will disabl
 Define the port number `export PORT=9999`.
 Run with `node __sapper__/build`
 
+### Compatibilité PM2
+Se positionner dans le répertoire puis 
+`PORT=9999 pm2 start __sapper__/build/index.js --name "webservice"`
+
 ### Principe de fonctionnement
 L'application se base sur les scripts disponibles dans `/QIBM/ProdData/OS/WebServices/bin/`. 
 
