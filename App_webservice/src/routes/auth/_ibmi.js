@@ -1,7 +1,5 @@
 const { Connection, ProgramCall } = require("itoolkit");
 const parseString = require("xml2js").parseString;
-const { resolve } = require("path");
-const { rejects } = require("assert");
 import * as environnement from "../../stores/environnement.js";
 
 // https://www.ibm.com/support/knowledgecenter/ssw_ibm_i_71/apis/QSYGETPH.htm

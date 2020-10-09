@@ -27,8 +27,8 @@
   import WsFilter from "../components/WsFilter.svelte";
 
   // Stores
+  import { stores } from '@sapper/app';
   import webservers from "../stores/webservers.js";
-  import * as environnement from "../stores/environnement.js";
 
   /**
    * Variables
@@ -45,11 +45,16 @@
     loadedWebservers = items;
   });
 
+  const { session } = stores();
+  const { SERVER, PORT, SERVER_SUITE } = $session;
+
+  console.log('Port : ' + PORT);
+
   // Arrêt/Démarrage d'un webservice
   function startStopWebServer(event) {
     let title = "Démarrage";
     let text = "Démarrage en cours...";
-    let url = `${environnement.SERVER}${environnement.PORT}${environnement.SERVER_SUITE}${event.detail.webserver.webserver.trim()}/`;
+    let url = `${SERVER}:${PORT}${SERVER_SUITE}${event.detail.webserver.webserver.trim()}/`;
 
     if (event.detail.action) {
       title = "Arrêt";
@@ -170,7 +175,7 @@
       allowEnterKey: false,
       showConfirmButton: false
     });
-    let url = `${environnement.SERVER}${environnement.PORT}${environnement.SERVER_SUITE}`;
+    let url = `${SERVER}:${PORT}${SERVER_SUITE}`;
 
     // Récupération des webservers
     axios({

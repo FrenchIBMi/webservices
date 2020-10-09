@@ -1,5 +1,3 @@
-const { dbstmt, dbconn } = require("idb-connector");
-
 const ServerDoesNotExist = "IWS00240E"; // Erreur - Server does not exist
 const ServiceDoesNotExist = "IWS00202E"; // Erreur - WebService does not exist
 const CommandSuccessfull = "IWS00102I"; // OK - Commande exécutée avec succès

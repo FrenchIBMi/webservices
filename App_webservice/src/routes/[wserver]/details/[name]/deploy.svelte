@@ -1,5 +1,4 @@
 <script context="module">
-  import * as environnement from "../../../../stores/environnement.js";
 
   export function preload(page, session) {
     const { token } = session;
@@ -21,6 +20,10 @@
   import axios from "axios";
   import Swal from "sweetalert2";
 
+  // Stores
+  import { stores } from '@sapper/app';
+  import * as environnement from "../../../../stores/environnement.js";
+
   // Components
   import Header from "../../../../components/UI/Header.svelte";
   import NotifyMessage from "../../../../components/UI/NotifyMessage.svelte";
@@ -30,6 +33,9 @@
 
   const titlePage = "Transfert d'un webservice";
   const listeServeurs = environnement.LISTE_SERVEURS;
+  const { session } = stores();
+  const { SERVER, PORT, SERVER_SUITE } = $session;
+
   let generationFichier = false;
   let codeServeur = "";
   let CommandInstall = "";
@@ -46,7 +52,7 @@
       allowEnterKey: false
     });
 
-    const url = `${environnement.SERVER}${environnement.PORT}${environnement.SERVER_SUITE}${wserver}/${wservice}/crtCfg/`;
+    const url = `${SERVER}:${PORT}${SERVER_SUITE}${wserver}/${wservice}/crtCfg/`;
 
     axios
       .get(url)
@@ -86,13 +92,13 @@
       allowEnterKey: false
     });
 
-    const url = `${environnement.SERVER}${environnement.PORT}${environnement.SERVER_SUITE}${wserver}/${wservice}/envoiCfg?serverIBMi=${codeServeur}`;
+    const url = `${SERVER}:${PORT}${SERVER_SUITE}${wserver}/${wservice}/envoiCfg?serverIBMi=${codeServeur}`;
 
     const parametresConfiguration = {
       programObject,
       libraryList
     };
-    console.log(parametresConfiguration);
+
     axios
       .post(url, parametresConfiguration)
       .then(function(response) {
@@ -105,7 +111,6 @@
           allowEscapeKey: false,
           allowEnterKey: false
         });
-        // generationFichier = false;
         CommandInstall = response.data.CommandInstall;
       })
       .catch(function(error) {

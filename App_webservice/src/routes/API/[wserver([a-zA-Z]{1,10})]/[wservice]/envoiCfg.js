@@ -1,5 +1,4 @@
 const { Connection, CommandCall } = require("itoolkit");
-const { dbstmt, dbconn } = require("idb-connector");
 const parseString = require("xml2js").parseString;
 import fs from "fs";
 import * as environnement from "../../../../stores/environnement.js";

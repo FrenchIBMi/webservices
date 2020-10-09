@@ -11,11 +11,6 @@
 </script>
 
 <script>
-  /**
-   * @TODO :
-   *  - Faire une gestion multi-machine.
-   */
-
   // Import des CSS
 
   import { onMount } from "svelte";
@@ -35,6 +30,7 @@
   import WsFilter from "../../components/WsFilter.svelte";
 
   // Stores
+  import { stores } from '@sapper/app';
   import webservices from "../../stores/webservices.js";
   import * as environnement from "../../stores/environnement.js";
 
@@ -46,6 +42,10 @@
   const titlePage = "Liste des webservices";
   const link = "/";
   const login = true;
+
+  const { session } = stores();
+
+  const { SERVER, PORT, SERVER_SUITE } = $session;
 
   let startFilter = true; // Bouton de filtre "Démarrés"
   let stopFilter = true; // Bouton de filtre "Arrêtés"
@@ -62,8 +62,7 @@
   function startStopWebService(event) {
     let title = "Démarrage";
     let text = "Démarrage en cours...";
-    // let url = `http://celprd.cil.loc:10010/web/services/GS_webservice/${wserver}/${event.detail.webservice.webservice}/`;
-    let url = `${environnement.SERVER}${environnement.PORT}${environnement.SERVER_SUITE}${wserver}/${event.detail.webservice.webservice}/`;
+    let url = `${SERVER}:${PORT}${SERVER_SUITE}${wserver}/${event.detail.webservice.webservice}/`;
 
     if (event.detail.action) {
       title = "Arrêt";
@@ -178,7 +177,7 @@
   function createConfigurationFile(event) {
     let title = "Génération du fichier";
     let text = "Génération en cours...";
-    let url = `${environnement.SERVER}${environnement.PORT}${environnement.SERVER_SUITE}${wserver}/${event.detail.webservice.webservice}/crtCfg`;
+    let url = `${SERVER}:${PORT}${SERVER_SUITE}${wserver}/${event.detail.webservice.webservice}/crtCfg`;
 
     Swal.fire({
       title: title,
@@ -230,7 +229,7 @@
       allowEnterKey: false,
       showConfirmButton: false
     });
-    let url = `${environnement.SERVER}${environnement.PORT}${environnement.SERVER_SUITE}${wserver}/`;
+    let url = `${SERVER}:${PORT}${SERVER_SUITE}${wserver}/`;
 
     axios({
       method: "get",
@@ -300,15 +299,4 @@
       <NotifyMessage>Pas de webservices !</NotifyMessage>
     {/each}
   </div>
-  <!-- <div class="row">
-    <div class="center" style="padding-bottom: 1rem;">
-      <a
-        href="/"
-        class="waves-effect waves-light btn"
-        style="background-color: #34ace0;">
-        <i class="material-icons left">arrow_back</i>
-        retour
-      </a>
-    </div>
-  </div> -->
 </section>

@@ -1,9 +1,3 @@
-// export const SERVER = 'http://devcil';
-// export const PORT = ':10010';
-export const SERVER = 'http://devcil';
-export const PORT = ':8082';
-// export const SERVER_SUITE = "/web/services/GS_webservice/";
-export const SERVER_SUITE = "/API/";
 export const LISTE_SERVEURS = [
   {
     code: "TSTCIL",
