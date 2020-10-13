@@ -48,7 +48,6 @@ export async function post(req, res) {
           ) {
             writer.write(LIBRARY_LIST + libraryList + "\r");
           } else if (line.substring(0, 25) == PROGRAM_OBJECT) {
-            // console.log(`programObject : ${programObject2}`);
             const indexPgm = line.lastIndexOf('/');
             const pgm = line.substring(indexPgm);
             if (programObject != "") {
