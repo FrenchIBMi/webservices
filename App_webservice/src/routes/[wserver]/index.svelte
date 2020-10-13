@@ -26,7 +26,7 @@
   //scripts
 
   // Components
-  import Carte from "../../components/carte.svelte";
+  import Carte from "../../components/Carte.svelte";
   import WsFilter from "../../components/WsFilter.svelte";
 
   // Stores
@@ -171,52 +171,6 @@
     return webserviceListFiltre;
   }
 
-  /**
-   * Création du fichier de configuration
-   */
-  function createConfigurationFile(event) {
-    let title = "Génération du fichier";
-    let text = "Génération en cours...";
-    let url = `${SERVER}:${PORT}${SERVER_SUITE}${wserver}/${event.detail.webservice.webservice}/crtCfg`;
-
-    Swal.fire({
-      title: title,
-      text: text,
-      icon: "info",
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      allowEnterKey: false
-    });
-
-    axios({
-      method: "get",
-      url: url,
-      mode: "cors"
-    })
-      .then(function(response) {
-        // Fermeture du message d'attente
-        Swal.close();
-
-        Swal.fire({
-          title: "Génération du fichier",
-          text: "Génération terminée !",
-          icon: "success"
-        });
-      })
-      .catch(function(error) {
-        // Fermeture du message d'attente
-        Swal.close();
-
-        // handle error
-        console.log("server response : " + error);
-        Swal.fire({
-          title: "Erreur",
-          text: "Contacter le CIL!",
-          icon: "error"
-        });
-      });
-  }
-
   // Au chargement
   onMount(() => {
     // Affichage d'un message d'attente
@@ -291,8 +245,7 @@
           <Carte
             {wserver}
             {webservice}
-            on:startStopWebService={startStopWebService}
-            on:createConfigurationFile={createConfigurationFile} />
+            on:startStopWebService={startStopWebService} />
         </section>
       </div>
     {:else}

@@ -29,6 +29,7 @@ export const PermissionRefused = "IWS00107E"; // Erreur - Droits insuffisants.
 export const ServiceExist = "IWS00207E"; // Erreur - Web service already exists.
 export const ParameterValueNotValid = "IWS00103E"; // Erreur - Parameter value not valid.
 export const OperationFailed = "IWS00999E"; // Erreur - Operation failed.
+export const CommandSuccessfullWithRestart = "IWS00106I"; // Command completed successfully.  Restart of server required for changes to take affect.
 
 export const CONNEXION_API = {
   transport: "idb",

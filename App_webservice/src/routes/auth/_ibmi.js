@@ -1,5 +1,6 @@
 const { Connection, ProgramCall } = require("itoolkit");
 const parseString = require("xml2js").parseString;
+
 import * as environnement from "../../stores/environnement.js";
 
 // https://www.ibm.com/support/knowledgecenter/ssw_ibm_i_71/apis/QSYGETPH.htm
@@ -36,6 +37,7 @@ let errorMessages = {
 export default function QSYSGETPH(user, pw) {
   return new Promise((resolve, reject) => {
     const conn = new Connection(environnement.CONNEXION_API);
+
     const program = new ProgramCall("QSYGETPH", { lib: "QSYS" });
 
     // User ID	Input	Char(10)
@@ -77,8 +79,13 @@ export default function QSYSGETPH(user, pw) {
         } else {
           parseString(xmlOutput, (parseError, result) => {
             if (parseError) {
+              //   throw parseError;
               reject({ result: "error", error: "Parse error" });
             }
+            // console.log(
+            //   "resultat : " +
+            //     errorMessages[result.myscript.pgm[0].parm[3].ds[0].data[2]._]
+            // );
             // Return error code if exist
             if (result.myscript.pgm[0].parm[3].ds[0].data[2]._) {
               reject({

@@ -140,7 +140,7 @@
 
 <section>
   <div class="row">
-    <div class="left" style="padding-left: 1rem; padding-top:1rem;">
+    <div class="col s1 left" style="padding-left: 1rem; padding-top:1rem;">
       <a
         href="{wserver}/"
         class="waves-effect waves-light btn"
@@ -149,12 +149,14 @@
         retour
       </a>
     </div>
+    <div class="col s10 center">
+      <h4 style="color: #ff6d00">
+        Transférer le webservice "{wservice}" sur une autre machine
+      </h4>
+    </div>
   </div>
 
   <div class="center" style="padding-bottom: 1rem;">
-    <h4 style="color: #ff6d00">
-      Transférer le webservice "{wservice}" sur une autre machine
-    </h4>
     <div class="center">
       <h6 style="font-style: italic;">1ème étape : Chemins</h6>
       <div class="row">
@@ -174,7 +176,7 @@
             placeholder="/QSYS.LIB/LIBRARY1.LIB;/QSYS.LIB/LIBRARY2.LIB;"
             bind:value={libraryList}
             data-length="120" />
-          <label for="textarea2">
+          <label for="libraryList">
             Liste des bibliothèques (séparés par ";")
           </label>
         </div>

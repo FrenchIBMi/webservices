@@ -2,13 +2,20 @@
  * Fonction permettant de simuler une API de connexion sur l'IBMi avec retour d'un JWT
  */
 import QSYGETPH from "./_ibmi";
+// import jwt from "jsonwebtoken";
 import rs from "jsrsasign";
+// import rsu from "jsrsasign-util";
 
 const JWS = rs.jws.JWS;
 
 const secret = "MySuperSecretPassPhrase";
 const tNow = rs.jws.IntDate.get("now");
 const tEnd = rs.jws.IntDate.get("now + 1day");
+
+// const options = {
+//   secret: "MySuperSecretPassPhrase",
+//   jwt_option: { expiresIn: "15h", issuer: "https://cil-lamballe.com" },
+// };
 
 export async function post(req, res) {
   const { user, password } = req.body;
@@ -38,6 +45,7 @@ export async function post(req, res) {
       );
     }
   } catch (error) {
+    // console.log(error);
     res.end(
       JSON.stringify({
         error: error,

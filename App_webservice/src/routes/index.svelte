@@ -48,6 +48,7 @@
   const { session } = stores();
   const { SERVER, PORT, SERVER_SUITE } = $session;
 
+  console.log('Server : ' + SERVER);
   console.log('Port : ' + PORT);
 
   // Arrêt/Démarrage d'un webservice

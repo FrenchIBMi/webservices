@@ -5,7 +5,6 @@ const parseString = require("xml2js").parseString;
 import * as environnement from "../../../stores/environnement.js";
 import fs from 'fs';
 
-
 const FileLibrary = environnement.FILE_LIBRARY;
 const FileServices = environnement.FILE_SERVICES;
 

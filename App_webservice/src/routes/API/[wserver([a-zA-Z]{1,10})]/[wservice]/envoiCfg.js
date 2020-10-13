@@ -16,8 +16,11 @@ export async function post(req, res) {
   const LIBRARY_LIST = "ws.iws.gen.librarylist=";
   const PROGRAM_OBJECT = "ws.iws.gen.programobject=";
   const serverIBMIMaj = req.query.serverIBMi;
+
   const libraryList = req.body.libraryList.trim();
   const programObject = req.body.programObject.trim();
+
+  // Récupération du chemin du fichier
   const FileConfiguration = environnement.CHEMIN_IFS;
 
   // Création d'un nouveau fichier avec le contenu adapté.
@@ -45,6 +48,7 @@ export async function post(req, res) {
           ) {
             writer.write(LIBRARY_LIST + libraryList + "\r");
           } else if (line.substring(0, 25) == PROGRAM_OBJECT) {
+            // console.log(`programObject : ${programObject2}`);
             const indexPgm = line.lastIndexOf('/');
             const pgm = line.substring(indexPgm);
             if (programObject != "") {
@@ -99,7 +103,6 @@ export async function post(req, res) {
             if (parseError) {
               throw parseError;
             }
-
           });
         }
       });

@@ -29,7 +29,6 @@ export async function get(req, res) {
           if (parseError) {
             throw parseError;
           }
-
           const sql = `select  substr(ldta, 1, LOCATE('(', ldta)-1) as "webserver"
                       , substr(ldta, LOCATE('(', ldta)+1, LOCATE(')', ldta) - LOCATE('(', ldta)-1) as "status_svr"
                   from ${FileLibrary}.${FileServers}

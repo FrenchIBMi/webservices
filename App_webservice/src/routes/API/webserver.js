@@ -30,7 +30,6 @@ export async function get(req, res) {
             throw parseError;
           }
           console.log("Error : ", JSON.stringify(result.myscript.qsh[0].error));
-          console.log("Commande listWebServicesServers : OK");
           res.end("OK", 200, JSON.stringify(result.myscript));
         });
       }
