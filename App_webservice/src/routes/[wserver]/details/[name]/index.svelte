@@ -1,6 +1,6 @@
 <script context="module">
   export function preload(page, session) {
-    const {token, SERVER, PORT, SERVER_SUITE } = session;
+    const { token, SERVER, PORT, SERVER_SUITE } = session;
 
     if (!token) {
       return this.redirect(302, "/login/");
@@ -17,7 +17,7 @@
 </script>
 
 <script>
-  import { onMount } from "svelte";
+  import { onMount, afterUpdate } from "svelte";
 
   import axios from "axios";
   import Swal from "sweetalert2";
@@ -28,11 +28,11 @@
   import CarteDetail from "../../../../components/CarteDetail.svelte";
 
   // Stores
-  import { stores } from '@sapper/app';
-  
+  import { stores } from "@sapper/app";
+
   export let wserver;
   export let wservice;
-  
+
   let detailWebservice = null;
   let propertiesWebservice = null;
 
@@ -50,7 +50,8 @@
     description = propertiesWebservice.wsproperties.description;
     userid = propertiesWebservice.wsproperties.runtime_user_id;
     libraryList = propertiesWebservice.wsproperties.library_list;
-    libraryListPosition = propertiesWebservice.wsproperties.library_list_position;
+    libraryListPosition =
+      propertiesWebservice.wsproperties.library_list_position;
     if (propertiesWebservice.wsproperties.startup_type == "Automatic") {
       startup = true;
     } else {
@@ -59,7 +60,7 @@
   }
 
   function setProperties() {
-     Swal.fire({
+    Swal.fire({
       title: "Modification",
       text: "Modification en cours ...",
       icon: "info",
@@ -84,7 +85,8 @@
         Swal.close();
         Swal.fire({
           title: "Modification",
-          text: "Redémarrage du service nécessaire pour prendre en compte les modifications.",
+          text:
+            "Redémarrage du service nécessaire pour prendre en compte les modifications.",
           icon: "success",
           allowOutsideClick: false,
           allowEscapeKey: false,
@@ -143,14 +145,14 @@
         });
       });
 
-      axios({
+    axios({
       method: "get",
       url: url2,
       mode: "cors"
     })
       .then(function(response) {
         propertiesWebservice = response.data;
-        
+
         // Fermeture du message d'attente
         Swal.close();
       })
@@ -166,9 +168,13 @@
           icon: "error"
         });
       });
+  });
 
-  })
-
+  afterUpdate(() => {
+    let elems = document.querySelectorAll(".collapsible");
+    let options = { accordion: false };
+    let instances = M.Collapsible.init(elems, options);
+  });
 </script>
 
 <svelte:head>
@@ -189,9 +195,7 @@
       </a>
     </div>
     <div class="col s10 center">
-      <h4 style="color: #ff6d00">
-        {description}
-      </h4>
+      <h4 style="color: #ff6d00">{description}</h4>
     </div>
     <div class="col s1" style="padding-right: 1rem; padding-top:1rem;">
       <a
@@ -203,106 +207,148 @@
       </a>
     </div>
   </div>
+
+  <ul class="collapsible popout">
+    <li>
+      <div class="collapsible-header">
+
+        <h5 style="color: #00897b; margin-left: 1rem;">
+          <i class="material-icons">tune</i>
+          Propriétés
+        </h5>
+      </div>
+
+      <div class="collapsible-body">
+
+        {#if propertiesWebservice}
+          <div class="row" style="margin-bottom: 0;">
+            <div class="col s12">
+              <div class="col s2" style="font-style: italic;">
+                Chemin d'installation :
+              </div>
+              <div class="col s10">
+                {propertiesWebservice.wsproperties.install_path}
+              </div>
+            </div>
+            <div class="col s12">
+              <div class="col s2" style="font-style: italic;">Programme :</div>
+              <div class="col s10">
+                {propertiesWebservice.wsproperties.program_object_path}
+              </div>
+            </div>
+            <div class="col s12">
+              <div class="col s2" style="font-style: italic;">Statut :</div>
+              <div
+                class="col s10"
+                style={propertiesWebservice.wsproperties.status == 'Running' ? 'color: #66bb6a;' : 'color: #ef5350;'}>
+                {propertiesWebservice.wsproperties.status}
+              </div>
+            </div>
+            <div class="col s12">
+              <div class="col s2" style="font-style: italic;">
+                Type démarrage :
+              </div>
+              <div class="col s10">
+                <label>
+                  <input
+                    name="startup"
+                    bind:group={startup}
+                    type="radio"
+                    value={true} />
+                  <span>Automatique</span>
+                </label>
+                <label>
+                  <input
+                    name="startup"
+                    bind:group={startup}
+                    type="radio"
+                    value={false} />
+                  <span>Manuel</span>
+                </label>
+              </div>
+            </div>
+            <div class="col s12">
+              <div class="input-field col s12">
+                <label for="userid">Utilisateur</label>
+                <input id="userid" type="text" bind:value={userid} />
+              </div>
+            </div>
+            <div class="col s12">
+              <div class="input-field col s12">
+                <textarea
+                  id="libraryList"
+                  class="materialize-textarea"
+                  bind:value={libraryList}
+                  data-length="120" />
+                <label for="libraryList">
+                  Liste des bibliothèques (séparés par ";")
+                </label>
+              </div>
+            </div>
+            <div class="col s12">
+              <div class="col s2" style="font-style: italic;">
+                Position de la liste de bibliothèque :
+              </div>
+              <div class="col s10">
+                <label>
+                  <input
+                    name="libraryListPosition"
+                    bind:group={libraryListPosition}
+                    type="radio"
+                    value={'*FIRST'} />
+                  <span>Début</span>
+                </label>
+                <label>
+                  <input
+                    name="libraryListPosition"
+                    bind:group={libraryListPosition}
+                    type="radio"
+                    value={'*LAST'} />
+                  <span>Fin</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div
+            class="row left-align"
+            style="padding-tight: 1rem; padding-top:1rem;">
+            <button
+              class="waves-effect waves-light btn btn orange darken-4"
+              style="margin-left: 1rem;"
+              on:click|preventDefault={setProperties}>
+              <i class="material-icons left">edit</i>
+              Modifier
+            </button>
+          </div>
+        {:else}
+          <NotifyMessage>Propriétés inconnues.</NotifyMessage>
+        {/if}
+      </div>
+    </li>
   
-  <div class="row left-align">
-    <h5 style="color: #00897b; margin-left: 1rem;">
-      Propriétés
-    </h5>
-  </div>
+    <li>
+      <div class="collapsible-header">
 
-  {#if propertiesWebservice}
-    <div class="row" style="margin-bottom: 0;">
-      <div class="col s12">
-        <div class="col s2" style="font-style: italic;">Chemin d'installation :</div>
-        <div class="col s10" >{propertiesWebservice.wsproperties.install_path}</div>
+        <h5 style="color: #00897b; margin-left: 1rem;">
+          <i class="material-icons">code</i>
+          Méthodes
+        </h5>
       </div>
-      <div class="col s12">
-        <div class="col s2" style="font-style: italic;">Programme : </div>
-        <div class="col s10" > {propertiesWebservice.wsproperties.program_object_path}</div>
-      </div>
-      <div class="col s12">
-        <div class="col s2" style="font-style: italic;">Statut :</div>
-        <div class="col s10" style={propertiesWebservice.wsproperties.status == "Running" ? "color: #66bb6a;" : "color: #ef5350;"}> {propertiesWebservice.wsproperties.status}</div>
-      </div>
-      <div class="col s12">
-        <div class="col s2" style="font-style: italic;">Type démarrage : </div>
-        <div class="col s10">
-          <label>
-            <input name="startup" bind:group={startup} type="radio" value={true}/>
-            <span>Automatique</span>
-          </label>
-          <label>
-            <input name="startup" bind:group={startup} type="radio" value={false} />
-            <span>Manuel</span>
-          </label>
+      <div class="collapsible-body">
+        <div>
+          {#if detailWebservice}
+            <div class="row">
+              {#each detailWebservice.wsentrypoints as detailWs}
+                <section id="detailWebserver">
+                  <CarteDetail {detailWs} />
+                </section>
+              {/each}
+            </div>
+          {:else}
+            <NotifyMessage>Pas de détails !</NotifyMessage>
+          {/if}
         </div>
       </div>
-      <div class="col s12">
-        <div class="input-field col s12">
-          <label for="userid">Utilisateur</label>
-          <input
-            id="userid"
-            type="text"
-            bind:value={userid} />
-        </div>
-      </div>
-      <div class="col s12">
-        <div class="input-field col s12">
-          <textarea 
-            id="libraryList" 
-            class="materialize-textarea" 
-            bind:value={libraryList}
-            data-length="120"></textarea>
-          <label for="libraryList">Liste des bibliothèques (séparés par ";")</label>
-        </div>
-      </div>
-      <div class="col s12">
-        <div class="col s2" style="font-style: italic;">Position de la liste de bibliothèque : </div>
-        <div class="col s10">
-          <label>
-            <input name="libraryListPosition" bind:group={libraryListPosition} type="radio" value={'*FIRST'}/>
-            <span>Début</span>
-          </label>
-          <label>
-            <input name="libraryListPosition" bind:group={libraryListPosition} type="radio" value={'*LAST'} />
-            <span>Fin</span>
-          </label>
-        </div>
-      </div>
-    </div>
-    <div class="row left-align" style="padding-tight: 1rem; padding-top:1rem;">
-      <button 
-        class="waves-effect waves-light btn btn orange darken-4"
-        style="margin-left: 1rem;"
-        on:click|preventDefault={setProperties}>
-        <i class="material-icons left">edit</i>
-        Modifier
-      </button>
-    </div>
-  {:else}
-    <NotifyMessage>Propriétés inconnues.</NotifyMessage>
-  {/if}
-
-  <div class="divider"></div>
-
-  <div class="row left-align">
-    <h5 style="color: #00897b; margin-left: 1rem;">
-      Méthodes
-    </h5>
-  </div>
-  <div>
-    {#if detailWebservice}
-      <div class="row">
-        {#each detailWebservice.wsentrypoints as detailWs}
-          <section id="detailWebserver">
-            <CarteDetail {detailWs} />
-          </section>
-        {/each}
-      </div>
-
-    {:else}
-      <NotifyMessage>Pas de détails !</NotifyMessage>
-    {/if}
-
-  </div>
+    </li>
+  </ul>
 </section>
