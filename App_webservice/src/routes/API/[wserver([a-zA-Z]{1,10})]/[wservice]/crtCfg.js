@@ -1,4 +1,4 @@
-const { Connection } = require("itoolkit");
+const { Connection, CommandCall } = require("itoolkit");
 const parseString = require("xml2js").parseString;
 import * as environnement from "../../../../stores/environnement.js";
 

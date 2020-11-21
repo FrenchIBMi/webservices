@@ -48,7 +48,6 @@
   const { session } = stores();
   const { SERVER, PORT, SERVER_SUITE } = $session;
 
-  console.log('Server : ' + SERVER);
   console.log('Port : ' + PORT);
 
   // Arrêt/Démarrage d'un webservice
@@ -116,7 +115,7 @@
         console.log("server response : " + error);
         Swal.fire({
           title: "Erreur",
-          text: "Contacter le CIL!",
+          text: "Arrêt/Démarrage impossible !",
           icon: "error"
         });
       });
@@ -176,14 +175,15 @@
       allowEnterKey: false,
       showConfirmButton: false
     });
-    let url = `${SERVER}:${PORT}${SERVER_SUITE}`;
+    // let url = `${SERVER}:${PORT}${SERVER_SUITE}`;
 
     // Récupération des webservers
-    axios({
-      method: "get",
-      url: url,
-      mode: "cors"
-    })
+    // axios({
+    //   method: "get",
+    //   url: url,
+    //   mode: "cors"
+    // })
+    axios.get("API")
       .then(function(response) {
         loadedWebservers = response.data.webservers;
         filteredWebservers = response.data.webservers;
@@ -199,7 +199,7 @@
         console.log("server response : " + error);
         Swal.fire({
           title: "Erreur",
-          text: "Contacter le CIL!",
+          text: "Impossible de récupérer les informations !",
           icon: "error"
         });
       });

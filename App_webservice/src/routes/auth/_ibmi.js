@@ -1,9 +1,8 @@
 const { Connection, ProgramCall } = require("itoolkit");
 const parseString = require("xml2js").parseString;
-
 import * as environnement from "../../stores/environnement.js";
 
-// https://www.ibm.com/support/knowledgecenter/ssw_ibm_i_71/apis/QSYGETPH.htm
+// https://www.ibm.com/support/knowledgecenter/ssw_ibm_i_74/apis/QSYGETPH.htm
 
 let errorMessages = {
   CPF2203: "User profile &1 not correct.",
@@ -37,13 +36,12 @@ let errorMessages = {
 export default function QSYSGETPH(user, pw) {
   return new Promise((resolve, reject) => {
     const conn = new Connection(environnement.CONNEXION_API);
-
     const program = new ProgramCall("QSYGETPH", { lib: "QSYS" });
 
     // User ID	Input	Char(10)
     program.addParam({ value: user.toUpperCase(), type: "10A" });
     // Password	Input	Char(*)
-    program.addParam({ value: pw.toUpperCase(), type: "10A" });
+    program.addParam({ value: pw.toUpperCase(), type: "512A" });
     // Profile handle	Output	Char(12)
     program.addParam({ value: "", type: "12A", io: "out", hex: "on" });
     const errno = {
@@ -66,7 +64,7 @@ export default function QSYSGETPH(user, pw) {
     // Error code	I/O	Char(*)
     program.addParam(errno);
     // Length of password	Input	Bin(4)
-    program.addParam({ value: 10, type: "10i0" });
+    program.addParam({ value: pw.trim().length, type: "10i0" });
     // CCSID of password	Input	Bin(4)
     program.addParam({ value: 0, type: "10i0" });
 
@@ -75,17 +73,13 @@ export default function QSYSGETPH(user, pw) {
     try {
       conn.run((error, xmlOutput) => {
         if (error) {
+
           reject({ result: "error", errorMessage: "Connection failed" });
         } else {
           parseString(xmlOutput, (parseError, result) => {
             if (parseError) {
-              //   throw parseError;
               reject({ result: "error", error: "Parse error" });
             }
-            // console.log(
-            //   "resultat : " +
-            //     errorMessages[result.myscript.pgm[0].parm[3].ds[0].data[2]._]
-            // );
             // Return error code if exist
             if (result.myscript.pgm[0].parm[3].ds[0].data[2]._) {
               reject({

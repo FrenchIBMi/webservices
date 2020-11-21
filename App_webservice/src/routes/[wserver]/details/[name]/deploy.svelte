@@ -52,10 +52,10 @@
       allowEnterKey: false
     });
 
-    const url = `${SERVER}:${PORT}${SERVER_SUITE}${wserver}/${wservice}/crtCfg/`;
+    // const url = `${SERVER}:${PORT}${SERVER_SUITE}${wserver}/${wservice}/crtCfg/`;
 
     axios
-      .get(url)
+      .get(`API/${wserver}/${wservice}/crtCfg/`)
       .then(function(response) {
         Swal.close();
         Swal.fire({
@@ -92,7 +92,8 @@
       allowEnterKey: false
     });
 
-    const url = `${SERVER}:${PORT}${SERVER_SUITE}${wserver}/${wservice}/envoiCfg?serverIBMi=${codeServeur}`;
+    // const url = `${SERVER}:${PORT}${SERVER_SUITE}${wserver}/${wservice}/envoiCfg?serverIBMi=${codeServeur}`;
+    const url = `API/${wserver}/${wservice}/envoiCfg?serverIBMi=${codeServeur}`;
 
     const parametresConfiguration = {
       programObject,
@@ -121,7 +122,7 @@
         console.log("server response : " + error);
         Swal.fire({
           title: "Erreur",
-          text: "Contacter le CIL!",
+          text: "Le fichier n'a pas été généré !",
           icon: "error"
         });
       });

@@ -123,7 +123,7 @@
         console.log("server response : " + error);
         Swal.fire({
           title: "Erreur",
-          text: "Contacter le CIL!",
+          text: "Arrêt/Démarrage impossible !",
           icon: "error"
         });
       });
@@ -183,13 +183,14 @@
       allowEnterKey: false,
       showConfirmButton: false
     });
-    let url = `${SERVER}:${PORT}${SERVER_SUITE}${wserver}/`;
+    // let url = `${SERVER}:${PORT}${SERVER_SUITE}${wserver}/`;
 
-    axios({
-      method: "get",
-      url: url,
-      mode: "cors"
-    })
+    // axios({
+    //   method: "get",
+    //   url: url,
+    //   mode: "cors"
+    // })
+    axios.get(`API/${wserver}/`)
       .then(function(response) {
         loadedWebservices = response.data.webservices;
         filteredWebservices = response.data.webservices;
@@ -205,7 +206,7 @@
         console.log("server response : " + error);
         Swal.fire({
           title: "Erreur",
-          text: "Contacter le CIL!",
+          text: "Impossible de récupérer les informations !",
           icon: "error"
         });
       });

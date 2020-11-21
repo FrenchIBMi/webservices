@@ -6,9 +6,9 @@
   <div class="card-panel teal" style="background-color: #40739e !important">
     <span class="white-text">
       <h5 class="center">{detailWs.entryPoint}</h5>
-      <p><span style="font-style: italic;">HTTP Request method : </span> {detailWs.restHttpRequestMethod}</p>
-      <p><span style="font-style: italic;">URI Path template : </span> {detailWs.restUriPathTemplate}</p>
-      <p><span style="font-style: italic;">Return output media type : </span> {detailWs.restProduces}</p>
+      <p>HTTP Request method : {detailWs.restHttpRequestMethod}</p>
+      <p>URI Path template : {detailWs.restUriPathTemplate}</p>
+      <p>Return output media type : {detailWs.restProduces}</p>
 
       <table class="striped responsive-table">
         <thead>

@@ -6,9 +6,8 @@ const ServiceExist = "IWS00207E"; // Erreur - Web service already exists.
 const ParameterValueNotValid = "IWS00103E"; // Erreur - Parameter value not valid.
 // Specified object XXXX not found.
 const OperationFailed = "IWS00999E"; // Erreur - Operation failed.
-const CommandSuccessfullWithRestart = "IWS00106I"; // Command completed successfully.  Restart of server required for changes to take affect.
 
-exports.checkStatus = function(codeStatus){
+exports.checkStatus = function (codeStatus) {
   let statusRetour = {
     codeStatut: "",
     libelleStatut: "",
@@ -31,10 +30,6 @@ exports.checkStatus = function(codeStatus){
       statusRetour.codeStatut = 204;
       statusRetour.libelleStatut = CommandSuccessfull;
       break;
-    case CommandSuccessfullWithRestart:
-      statusRetour.codeStatut = 204;
-      statusRetour.libelleStatut = CommandSuccessfullWithRestart;
-      break;
     default:
       statusRetour.codeStatut = 500;
       statusRetour.libelleStatut = "Erreur inconnue";
@@ -42,4 +37,4 @@ exports.checkStatus = function(codeStatus){
   }
 
   return statusRetour;
-}
+};

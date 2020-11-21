@@ -20,15 +20,17 @@
 
 </style>
 
-<button
-  class="waves-effect waves-light btn {filtreStart ? 'green lighten-1' : 'grey darken-1'}"
-  on:click={filtrerStart}>
-  <i class="material-icons left">check</i>
-  Démarrés
-</button>
-<button
-  class="waves-effect waves-light btn {filtreStop ? 'red lighten-1' : 'grey darken-1'}"
-  on:click={filtrerStop}>
-  <i class="material-icons left">error_outline</i>
-  Arrêtés
-</button>
+<!-- <div class="center" style="padding-top:1rem;"> -->
+  <button
+    class="waves-effect waves-light btn {filtreStart ? 'green lighten-1' : 'grey darken-1'}"
+    on:click={filtrerStart}>
+    <i class="material-icons left">check</i>
+    Démarrés
+  </button>
+  <button
+    class="waves-effect waves-light btn {filtreStop ? 'red lighten-1' : 'grey darken-1'}"
+    on:click={filtrerStop}>
+    <i class="material-icons left">error_outline</i>
+    Arrêtés
+  </button>
+<!-- </div> -->
