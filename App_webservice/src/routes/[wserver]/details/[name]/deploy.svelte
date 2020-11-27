@@ -141,7 +141,7 @@
 
 <section>
   <div class="row">
-    <div class="col s1 left" style="padding-left: 1rem; padding-top:1rem;">
+    <div class="col s2 left" style="padding-left: 1rem; padding-top:1rem;">
       <a
         href="{wserver}/"
         class="waves-effect waves-light btn"
@@ -150,7 +150,7 @@
         retour
       </a>
     </div>
-    <div class="col s10 center">
+    <div class="col s8 center">
       <h4 style="color: #ff6d00">
         Transférer le webservice "{wservice}" sur une autre machine
       </h4>

@@ -28,13 +28,14 @@
     display: block;
     max-width: 89%;
     color: black;
-    padding-left: 66px;
+    /* padding-left: 66px; */
   }
 </style>
 
 <div class="container page">
   <div class="row">
-    <div class="col s6 offset-m3">
+    <!-- <div class="col s6 offset-m3"> -->
+    <div class="col s10 offset-m1">
       <div
         class="alert alert-info alert-with-icon center-align"
         data-notify="container">

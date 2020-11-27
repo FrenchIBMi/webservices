@@ -13,7 +13,7 @@
       })
       .finally(function() {
         $session.token = null;
-        goto("/");
+        goto("/login");
       });
   }
 </script>

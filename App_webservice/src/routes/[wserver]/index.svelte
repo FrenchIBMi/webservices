@@ -51,6 +51,7 @@
   let stopFilter = true; // Bouton de filtre "Arrêtés"
   let loadedWebservices = []; // liste des webservices chargés à partir de l'API
   let filteredWebservices = []; // liste des webservices filtrés
+  let description = wserver;
 
   const unsubscribe = webservices.subscribe(items => {
     loadedWebservices = items;
@@ -225,19 +226,28 @@
 
 <section>
   <div class="row">
-    <div class="center" style="padding-top:1rem;">
-      <WsFilter on:filtrer={filtrer} />
-      <div class="left" style="padding-left: 1rem;">
-        <a
-          href="/"
-          class="waves-effect waves-light btn"
-          style="background-color: #34ace0;">
-          <i class="material-icons left">arrow_back</i>
-          retour
-        </a>
-      </div>
+    <div class="col s2" style="padding-left: 1rem; padding-top:1rem;">
+      <a
+        href="/"
+        class="waves-effect waves-light btn"
+        style="background-color: #34ace0;">
+        <i class="material-icons left">arrow_back</i>
+        retour
+      </a>
+    </div>
+    <div class="col s8 center">
+      <h4 style="color: #ff6d00;margin-top: 1rem;margin-bottom: 0rem;">
+        {description}
+      </h4>
     </div>
   </div>
+  <div>
+    <div class="center">
+      <WsFilter on:filtrer={filtrer} />
+      
+    </div>
+  </div>
+
   <div class="row">
     {#each filteredWebservices as webservice (webservice.webservice)}
       <div transition:scale animate:flip={{ duration: 300 }}>

@@ -40,11 +40,11 @@
   const { session } = stores();
   const { SERVER, PORT, SERVER_SUITE } = $session;
 
-  let userid = "";
-  let libraryList = "";
-  let startup = "";
-  let description = "";
-  let libraryListPosition = ""; // *FIRST | *LAST
+  let userid;
+  let libraryList;
+  let startup;
+  let description;
+  let libraryListPosition; // *FIRST | *LAST
 
   $: if (propertiesWebservice) {
     description = propertiesWebservice.wsproperties.description;
@@ -181,7 +181,7 @@
 
 <section>
   <div class="row">
-    <div class="col s1" style="padding-left: 1rem; padding-top:1rem;">
+    <div class="col s2" style="padding-left: 1rem; padding-top:1rem;">
       <a
         href="{wserver}/"
         class="waves-effect waves-light btn"
@@ -190,12 +190,12 @@
         retour
       </a>
     </div>
-    <div class="col s10 center">
+    <div class="col s8 center">
       <h4 style="color: #ff6d00">
         {description}
       </h4>
     </div>
-    <div class="col s1" style="padding-right: 1rem; padding-top:1rem;">
+    <div class="col s2" style="padding-right: 1rem; padding-top:1rem;">
       <a
         href="{wserver}/details/{wservice}/deploy"
         class="waves-effect waves-light btn"
@@ -210,6 +210,16 @@
     <h5 style="color: #00897b; margin-left: 1rem;">
       Propriétés
     </h5>
+  </div>
+
+  <div class="switch">
+    <label>
+      Arrêté
+      <input
+        type="checkbox"/>
+      <span class="lever" />
+      Démarré
+    </label>
   </div>
 
   {#if propertiesWebservice}
@@ -228,7 +238,7 @@
       </div>
       <div class="col s12">
         <div class="col s2" style="font-style: italic;">Type démarrage : </div>
-        <div class="col s10">
+        <!-- <div class="col s10">
           <label>
             <input name="startup" bind:group={startup} type="radio" value={true}/>
             <span>Automatique</span>
@@ -237,15 +247,25 @@
             <input name="startup" bind:group={startup} type="radio" value={false} />
             <span>Manuel</span>
           </label>
+        </div> -->
+        <div class="switch">
+          <label>
+            Arrêté
+            <input
+              type="checkbox"
+              bind:checked={startup} />
+            <span class="lever" />
+            Démarré
+          </label>
         </div>
       </div>
       <div class="col s12">
         <div class="input-field col s12">
-          <label for="userid">Utilisateur</label>
+          <label class="active" for="userid">Utilisateur</label>
           <input
             id="userid"
             type="text"
-            bind:value={userid} />
+            bind:value={userid} class="validate">
         </div>
       </div>
       <div class="col s12">
@@ -255,7 +275,7 @@
             class="materialize-textarea" 
             bind:value={libraryList}
             data-length="120"></textarea>
-          <label for="libraryList">Liste des bibliothèques (séparés par ";")</label>
+          <label for="libraryList" class="active">Liste des bibliothèques (séparés par ";") </label>
         </div>
       </div>
       <div class="col s12">

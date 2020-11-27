@@ -29,10 +29,10 @@
   }
 </style>
 
-<div class="col s12 m3">
+<div class="col s12 m6 l4 xl3">
   <div class="card ">
     <div
-      class="card-content white-text {start ? 'green lighten-1' : 'red lighten-1'}">
+      class="card-content white-text {start ? 'green lighten-1' : 'red lighten-1'}" style="height: 9rem;">
       <span class="card-title activator white-text text-darken-4 title">
         {webservice.webservice}
         <i class="material-icons right">more_vert</i>
