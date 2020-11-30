@@ -1,5 +1,4 @@
 const { Connection, CommandCall } = require("itoolkit");
-const { dbstmt, dbconn } = require("idb-connector");
 const parseString = require("xml2js").parseString;
 import fs from "fs";
 import * as environnement from "../../../../stores/environnement.js";
@@ -17,8 +16,11 @@ export async function post(req, res) {
   const LIBRARY_LIST = "ws.iws.gen.librarylist=";
   const PROGRAM_OBJECT = "ws.iws.gen.programobject=";
   const serverIBMIMaj = req.query.serverIBMi;
+
   const libraryList = req.body.libraryList.trim();
   const programObject = req.body.programObject.trim();
+
+  // Récupération du chemin du fichier
   const FileConfiguration = environnement.CHEMIN_IFS;
 
   // Création d'un nouveau fichier avec le contenu adapté.
@@ -100,7 +102,6 @@ export async function post(req, res) {
             if (parseError) {
               throw parseError;
             }
-
           });
         }
       });

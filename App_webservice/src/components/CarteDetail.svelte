@@ -2,7 +2,7 @@
   export let detailWs;
 </script>
 
-<div class="col s12 l6">
+<div class="col s12 xl6">
   <div class="card-panel teal" style="background-color: #40739e !important">
     <span class="white-text">
       <h5 class="center">{detailWs.entryPoint}</h5>

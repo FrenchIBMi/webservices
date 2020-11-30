@@ -1,10 +1,8 @@
 const { Connection, ProgramCall } = require("itoolkit");
 const parseString = require("xml2js").parseString;
-const { resolve } = require("path");
-const { rejects } = require("assert");
 import * as environnement from "../../stores/environnement.js";
 
-// https://www.ibm.com/support/knowledgecenter/ssw_ibm_i_71/apis/QSYGETPH.htm
+// https://www.ibm.com/support/knowledgecenter/ssw_ibm_i_74/apis/QSYGETPH.htm
 
 let errorMessages = {
   CPF2203: "User profile &1 not correct.",
@@ -43,7 +41,7 @@ export default function QSYSGETPH(user, pw) {
     // User ID	Input	Char(10)
     program.addParam({ value: user.toUpperCase(), type: "10A" });
     // Password	Input	Char(*)
-    program.addParam({ value: pw.toUpperCase(), type: "10A" });
+    program.addParam({ value: pw.toUpperCase(), type: "512A" });
     // Profile handle	Output	Char(12)
     program.addParam({ value: "", type: "12A", io: "out", hex: "on" });
     const errno = {
@@ -66,7 +64,7 @@ export default function QSYSGETPH(user, pw) {
     // Error code	I/O	Char(*)
     program.addParam(errno);
     // Length of password	Input	Bin(4)
-    program.addParam({ value: 10, type: "10i0" });
+    program.addParam({ value: pw.trim().length, type: "10i0" });
     // CCSID of password	Input	Bin(4)
     program.addParam({ value: 0, type: "10i0" });
 
@@ -75,6 +73,7 @@ export default function QSYSGETPH(user, pw) {
     try {
       conn.run((error, xmlOutput) => {
         if (error) {
+
           reject({ result: "error", errorMessage: "Connection failed" });
         } else {
           parseString(xmlOutput, (parseError, result) => {

@@ -18,7 +18,7 @@ export async function post(req, res) {
     if (result.result === "success") {
       const oHeader = { alg: "HS256", typ: "JWT" };
       let oPayload = {};
-      oPayload.iss = "https://cil-lamballe.com";
+      oPayload.iss = "https://cooperl.com";
       oPayload.name = user;
       oPayload.nbf = tNow;
       oPayload.iat = tNow;

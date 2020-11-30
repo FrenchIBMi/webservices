@@ -3,9 +3,12 @@
   import axios from "axios";
 
   // Stores
-  import * as environnement from "../stores/environnement.js";
+  import { stores } from '@sapper/app';
 
   export let webserver;
+
+  const { session } = stores();
+  const { SERVER, PORT, SERVER_SUITE } = $session;
 
   let start;
   let wsProperties = {};
@@ -22,7 +25,7 @@
   }
 
   onMount(() => {
-    let url = `${environnement.SERVER}${environnement.PORT}${environnement.SERVER_SUITE}${webserver.webserver.trim()}/properties`;
+    let url = `${SERVER}:${PORT}${SERVER_SUITE}${webserver.webserver.trim()}/properties`;
     // Récupération des propriétés du webserver
     axios({
       method: "get",
@@ -56,7 +59,6 @@
         {webserver.webserver.trim()}
         <i class="material-icons right">more_vert</i>
       </span>
-      <!-- <p>{webservice.description_svc}</p> -->
     </div>
 
     <div class="card-reveal">

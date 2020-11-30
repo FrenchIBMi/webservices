@@ -1,5 +1,4 @@
 <script context="module">
-  import * as environnement from "../../../../stores/environnement.js";
 
   export function preload(page, session) {
     const { token } = session;
@@ -21,6 +20,10 @@
   import axios from "axios";
   import Swal from "sweetalert2";
 
+  // Stores
+  import { stores } from '@sapper/app';
+  import * as environnement from "../../../../stores/environnement.js";
+
   // Components
   import Header from "../../../../components/UI/Header.svelte";
   import NotifyMessage from "../../../../components/UI/NotifyMessage.svelte";
@@ -30,6 +33,9 @@
 
   const titlePage = "Transfert d'un webservice";
   const listeServeurs = environnement.LISTE_SERVEURS;
+  const { session } = stores();
+  const { SERVER, PORT, SERVER_SUITE } = $session;
+
   let generationFichier = false;
   let codeServeur = "";
   let CommandInstall = "";
@@ -46,10 +52,10 @@
       allowEnterKey: false
     });
 
-    const url = `${environnement.SERVER}${environnement.PORT}${environnement.SERVER_SUITE}${wserver}/${wservice}/crtCfg/`;
+    // const url = `${SERVER}:${PORT}${SERVER_SUITE}${wserver}/${wservice}/crtCfg/`;
 
     axios
-      .get(url)
+      .get(`API/${wserver}/${wservice}/crtCfg/`)
       .then(function(response) {
         Swal.close();
         Swal.fire({
@@ -86,13 +92,14 @@
       allowEnterKey: false
     });
 
-    const url = `${environnement.SERVER}${environnement.PORT}${environnement.SERVER_SUITE}${wserver}/${wservice}/envoiCfg?serverIBMi=${codeServeur}`;
+    // const url = `${SERVER}:${PORT}${SERVER_SUITE}${wserver}/${wservice}/envoiCfg?serverIBMi=${codeServeur}`;
+    const url = `API/${wserver}/${wservice}/envoiCfg?serverIBMi=${codeServeur}`;
 
     const parametresConfiguration = {
       programObject,
       libraryList
     };
-    console.log(parametresConfiguration);
+
     axios
       .post(url, parametresConfiguration)
       .then(function(response) {
@@ -105,7 +112,6 @@
           allowEscapeKey: false,
           allowEnterKey: false
         });
-        // generationFichier = false;
         CommandInstall = response.data.CommandInstall;
       })
       .catch(function(error) {
@@ -116,7 +122,7 @@
         console.log("server response : " + error);
         Swal.fire({
           title: "Erreur",
-          text: "Contacter le CIL!",
+          text: "Le fichier n'a pas été généré !",
           icon: "error"
         });
       });
@@ -135,7 +141,7 @@
 
 <section>
   <div class="row">
-    <div class="left" style="padding-left: 1rem; padding-top:1rem;">
+    <div class="col s2 left" style="padding-left: 1rem; padding-top:1rem;">
       <a
         href="{wserver}/"
         class="waves-effect waves-light btn"
@@ -144,12 +150,14 @@
         retour
       </a>
     </div>
+    <div class="col s8 center">
+      <h4 style="color: #ff6d00">
+        Transférer le webservice "{wservice}" sur une autre machine
+      </h4>
+    </div>
   </div>
 
   <div class="center" style="padding-bottom: 1rem;">
-    <h4 style="color: #ff6d00">
-      Transférer le webservice "{wservice}" sur une autre machine
-    </h4>
     <div class="center">
       <h6 style="font-style: italic;">1ème étape : Chemins</h6>
       <div class="row">
@@ -169,7 +177,7 @@
             placeholder="/QSYS.LIB/LIBRARY1.LIB;/QSYS.LIB/LIBRARY2.LIB;"
             bind:value={libraryList}
             data-length="120" />
-          <label for="textarea2">
+          <label for="libraryList">
             Liste des bibliothèques (séparés par ";")
           </label>
         </div>

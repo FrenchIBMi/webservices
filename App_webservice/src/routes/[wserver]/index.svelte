@@ -11,11 +11,6 @@
 </script>
 
 <script>
-  /**
-   * @TODO :
-   *  - Faire une gestion multi-machine.
-   */
-
   // Import des CSS
 
   import { onMount } from "svelte";
@@ -31,10 +26,11 @@
   //scripts
 
   // Components
-  import Carte from "../../components/carte.svelte";
+  import Carte from "../../components/Carte.svelte";
   import WsFilter from "../../components/WsFilter.svelte";
 
   // Stores
+  import { stores } from '@sapper/app';
   import webservices from "../../stores/webservices.js";
   import * as environnement from "../../stores/environnement.js";
 
@@ -47,10 +43,15 @@
   const link = "/";
   const login = true;
 
+  const { session } = stores();
+
+  const { SERVER, PORT, SERVER_SUITE } = $session;
+
   let startFilter = true; // Bouton de filtre "Démarrés"
   let stopFilter = true; // Bouton de filtre "Arrêtés"
   let loadedWebservices = []; // liste des webservices chargés à partir de l'API
   let filteredWebservices = []; // liste des webservices filtrés
+  let description = wserver;
 
   const unsubscribe = webservices.subscribe(items => {
     loadedWebservices = items;
@@ -62,8 +63,7 @@
   function startStopWebService(event) {
     let title = "Démarrage";
     let text = "Démarrage en cours...";
-    // let url = `http://celprd.cil.loc:10010/web/services/GS_webservice/${wserver}/${event.detail.webservice.webservice}/`;
-    let url = `${environnement.SERVER}${environnement.PORT}${environnement.SERVER_SUITE}${wserver}/${event.detail.webservice.webservice}/`;
+    let url = `${SERVER}:${PORT}${SERVER_SUITE}${wserver}/${event.detail.webservice.webservice}/`;
 
     if (event.detail.action) {
       title = "Arrêt";
@@ -124,7 +124,7 @@
         console.log("server response : " + error);
         Swal.fire({
           title: "Erreur",
-          text: "Contacter le CIL!",
+          text: "Arrêt/Démarrage impossible !",
           icon: "error"
         });
       });
@@ -172,52 +172,6 @@
     return webserviceListFiltre;
   }
 
-  /**
-   * Création du fichier de configuration
-   */
-  function createConfigurationFile(event) {
-    let title = "Génération du fichier";
-    let text = "Génération en cours...";
-    let url = `${environnement.SERVER}${environnement.PORT}${environnement.SERVER_SUITE}${wserver}/${event.detail.webservice.webservice}/crtCfg`;
-
-    Swal.fire({
-      title: title,
-      text: text,
-      icon: "info",
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      allowEnterKey: false
-    });
-
-    axios({
-      method: "get",
-      url: url,
-      mode: "cors"
-    })
-      .then(function(response) {
-        // Fermeture du message d'attente
-        Swal.close();
-
-        Swal.fire({
-          title: "Génération du fichier",
-          text: "Génération terminée !",
-          icon: "success"
-        });
-      })
-      .catch(function(error) {
-        // Fermeture du message d'attente
-        Swal.close();
-
-        // handle error
-        console.log("server response : " + error);
-        Swal.fire({
-          title: "Erreur",
-          text: "Contacter le CIL!",
-          icon: "error"
-        });
-      });
-  }
-
   // Au chargement
   onMount(() => {
     // Affichage d'un message d'attente
@@ -230,13 +184,14 @@
       allowEnterKey: false,
       showConfirmButton: false
     });
-    let url = `${environnement.SERVER}${environnement.PORT}${environnement.SERVER_SUITE}${wserver}/`;
+    // let url = `${SERVER}:${PORT}${SERVER_SUITE}${wserver}/`;
 
-    axios({
-      method: "get",
-      url: url,
-      mode: "cors"
-    })
+    // axios({
+    //   method: "get",
+    //   url: url,
+    //   mode: "cors"
+    // })
+    axios.get(`API/${wserver}/`)
       .then(function(response) {
         loadedWebservices = response.data.webservices;
         filteredWebservices = response.data.webservices;
@@ -252,7 +207,7 @@
         console.log("server response : " + error);
         Swal.fire({
           title: "Erreur",
-          text: "Contacter le CIL!",
+          text: "Impossible de récupérer les informations !",
           icon: "error"
         });
       });
@@ -271,37 +226,7 @@
 
 <section>
   <div class="row">
-    <div class="center" style="padding-top:1rem;">
-      <WsFilter on:filtrer={filtrer} />
-      <div class="left" style="padding-left: 1rem;">
-        <a
-          href="/"
-          class="waves-effect waves-light btn"
-          style="background-color: #34ace0;">
-          <i class="material-icons left">arrow_back</i>
-          retour
-        </a>
-      </div>
-    </div>
-  </div>
-  <div class="row">
-    {#each filteredWebservices as webservice (webservice.webservice)}
-      <div transition:scale animate:flip={{ duration: 300 }}>
-        <!-- Card -->
-        <section id="webservices">
-          <Carte
-            {wserver}
-            {webservice}
-            on:startStopWebService={startStopWebService}
-            on:createConfigurationFile={createConfigurationFile} />
-        </section>
-      </div>
-    {:else}
-      <NotifyMessage>Pas de webservices !</NotifyMessage>
-    {/each}
-  </div>
-  <!-- <div class="row">
-    <div class="center" style="padding-bottom: 1rem;">
+    <div class="col s2" style="padding-left: 1rem; padding-top:1rem;">
       <a
         href="/"
         class="waves-effect waves-light btn"
@@ -310,5 +235,32 @@
         retour
       </a>
     </div>
-  </div> -->
+    <div class="col s8 center">
+      <h4 style="color: #ff6d00;margin-top: 1rem;margin-bottom: 0rem;">
+        {description}
+      </h4>
+    </div>
+  </div>
+  <div>
+    <div class="center">
+      <WsFilter on:filtrer={filtrer} />
+      
+    </div>
+  </div>
+
+  <div class="row">
+    {#each filteredWebservices as webservice (webservice.webservice)}
+      <div transition:scale animate:flip={{ duration: 300 }}>
+        <!-- Card -->
+        <section id="webservices">
+          <Carte
+            {wserver}
+            {webservice}
+            on:startStopWebService={startStopWebService} />
+        </section>
+      </div>
+    {:else}
+      <NotifyMessage>Pas de webservices !</NotifyMessage>
+    {/each}
+  </div>
 </section>

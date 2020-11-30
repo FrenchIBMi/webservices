@@ -27,8 +27,8 @@
   import WsFilter from "../components/WsFilter.svelte";
 
   // Stores
+  import { stores } from '@sapper/app';
   import webservers from "../stores/webservers.js";
-  import * as environnement from "../stores/environnement.js";
 
   /**
    * Variables
@@ -45,11 +45,16 @@
     loadedWebservers = items;
   });
 
+  const { session } = stores();
+  const { SERVER, PORT, SERVER_SUITE } = $session;
+
+  console.log('Port : ' + PORT);
+
   // Arrêt/Démarrage d'un webservice
   function startStopWebServer(event) {
     let title = "Démarrage";
     let text = "Démarrage en cours...";
-    let url = `${environnement.SERVER}${environnement.PORT}${environnement.SERVER_SUITE}${event.detail.webserver.webserver.trim()}/`;
+    let url = `${SERVER}:${PORT}${SERVER_SUITE}${event.detail.webserver.webserver.trim()}/`;
 
     if (event.detail.action) {
       title = "Arrêt";
@@ -110,7 +115,7 @@
         console.log("server response : " + error);
         Swal.fire({
           title: "Erreur",
-          text: "Contacter le CIL!",
+          text: "Arrêt/Démarrage impossible !",
           icon: "error"
         });
       });
@@ -170,14 +175,15 @@
       allowEnterKey: false,
       showConfirmButton: false
     });
-    let url = `${environnement.SERVER}${environnement.PORT}${environnement.SERVER_SUITE}`;
+    // let url = `${SERVER}:${PORT}${SERVER_SUITE}`;
 
     // Récupération des webservers
-    axios({
-      method: "get",
-      url: url,
-      mode: "cors"
-    })
+    // axios({
+    //   method: "get",
+    //   url: url,
+    //   mode: "cors"
+    // })
+    axios.get("API")
       .then(function(response) {
         loadedWebservers = response.data.webservers;
         filteredWebservers = response.data.webservers;
@@ -193,7 +199,7 @@
         console.log("server response : " + error);
         Swal.fire({
           title: "Erreur",
-          text: "Contacter le CIL!",
+          text: "Impossible de récupérer les informations !",
           icon: "error"
         });
       });

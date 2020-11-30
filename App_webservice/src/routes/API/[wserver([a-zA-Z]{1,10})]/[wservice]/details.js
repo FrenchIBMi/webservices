@@ -1,13 +1,20 @@
 const { dbstmt, dbconn } = require("idb-connector");
 
 /**
+ * La liste de bibliothèque est à chercher dans le fichier de config/www/WSERVICE/webservices/services/GS_webservice/WEB-INF/classes/GS_webservice.config                                                   
+ */
+
+/**
  * Détails d'un webservice d'un webserver
  */
 export async function get(req, res) {
   console.log(
     `Détails d'un webservice d'un webserver : ${JSON.stringify(req.params)}`
   );
-  // Lecture du fichier PCML pour avoir des informations détaillées
+
+  // Recherche des infos dans les fichers
+  // '/www/WSERVICE/webservices/services/FluxMntTrs/FluxMntTrs.pcml'
+  // Lecture des points d'entrées
   const fichierPCML =
     "/www/" +
     req.params.wserver.trim() +
@@ -23,10 +30,11 @@ export async function get(req, res) {
 
   const sql = `SELECT entrypoint as "entrypoint"
     , UPPER(entrypoint)  as "entrypointUpper"
-    , restUriPathTemplate as "restUriPathTemplate"
-    , restProduces as "restProduces"
-    , restHttpRequestMethod as "restHttpRequestMethod"
+    , ifnull(restUriPathTemplate, '') as "restUriPathTemplate"
+    , ifnull(restProduces, '') as "restProduces"
+    , ifnull(restHttpRequestMethod, '') as "restHttpRequestMethod"
     , RIGHT(trim(chemin), 4) as "extension"
+    , ifnull(chemin, '') as "chemin"
     FROM XMLTABLE('$result/pcml/program'
   PASSING XMLPARSE(
         DOCUMENT
@@ -39,7 +47,6 @@ export async function get(req, res) {
    restHttpRequestMethod char(10) PATH '@restHttpRequestMethod',
    chemin char(150) PATH '@path'
     ) AS TABLEXML;`;
-
 
   const connectionDB2 = new dbconn(); // Create a connection object.
   connectionDB2.conn("*LOCAL"); // Connect to the database.
@@ -96,6 +103,7 @@ export async function get(req, res) {
     let resultatSqlDetail = statement.execSync(sqlDetail);
 
     resultatFinal.wsentrypoints.push({
+      path: elem.chemin.trim(),
       entryPoint: elem.entrypoint.trim(),
       restUriPathTemplate: elem.restUriPathTemplate.trim(),
       restProduces: elem.restProduces.trim(),

@@ -1,28 +1,18 @@
-// export const SERVER = 'http://devcil';
-// export const PORT = ':10010';
-export const SERVER = 'http://devcil';
-export const PORT = ':8082';
-// export const SERVER_SUITE = "/web/services/GS_webservice/";
-export const SERVER_SUITE = "/API/";
 export const LISTE_SERVEURS = [
   {
-    code: "TSTCIL",
-    libelle: "Test CIL",
+    code: "GIGCTEST",
+    libelle: "Test",
   },
   {
-    code: "CILPRD",
-    libelle: "Production CIL",
+    code: "GIGC",
+    libelle: "Production",
   },
   {
-    code: "CELPRD",
-    libelle: "Les Celliers associés",
-  },
-  {
-    code: "PAYPRD",
-    libelle: "Garun-Paysanne",
-  },
+    code: "GIGC1",
+    libelle: "Prod 1",
+  }
 ];
-export const FILE_LIBRARY = 'CCO';
+export const FILE_LIBRARY = 'GPTEST';
 export const FILE_SERVERS = "CCSRV1P1"; // Nom du fichier des webservers (temporaire)
 export const FILE_SERVICES = "CCSRV2P1"; // Nom du fichier des webservices (temporaire)
 export const FILE_PROPERTIES = "CCSRV3P1"; // Nom du fichier des properties (temporaire)

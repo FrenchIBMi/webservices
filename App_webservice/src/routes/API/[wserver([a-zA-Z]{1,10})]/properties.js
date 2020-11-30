@@ -13,6 +13,7 @@ export async function get(req, res) {
   console.log(`Propriétés d'un webserver : ${JSON.stringify(req.params)}`);
 
   const getWebServerProperties = `/QIBM/ProdData/OS/WebServices/bin/getWebServicesServerProperties.sh -server '${req.params.wserver}' | Rfile -wQ '${FileLibrary}/${FileProperties}'`;
+
   const connectioniToolkit = new Connection(environnement.CONNEXION_API);
 
   const command = new CommandCall({

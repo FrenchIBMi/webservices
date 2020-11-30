@@ -20,7 +20,6 @@ export async function get(req, res) {
     type: "qsh",
     command: getWebServiceProperties,
   });
-
   connectioniToolkit.add(command);
 
   try {
@@ -92,8 +91,12 @@ export async function get(req, res) {
                   .substr(20)
                   .trim();
                 break;
+              case "Library list positio":
+                resultatFinal.wsproperties.library_list_position = element.ldta
+                  .substr(23)
+                  .trim();
+                break;
               default:
-                // erreur = true;
                 break;
             }
           });
